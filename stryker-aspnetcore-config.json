@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-net/master/src/Stryker.Core/Stryker.Core/stryker-config.schema.json",
+  "stryker-config": {
+    "project": "EricksonLopez.RateLimiting.AspNetCore.csproj",
+    "test-projects": [
+      "tests/EricksonLopez.RateLimiting.AspNetCore.Tests/EricksonLopez.RateLimiting.AspNetCore.Tests.csproj"
+    ],
+    "reporters": [
+      "ClearText",
+      "Html",
+      "Json"
+    ],
+    "concurrency": 2,
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "mutate": [
+      "src/EricksonLopez.RateLimiting.AspNetCore/**/*.cs",
+      "!src/EricksonLopez.RateLimiting.AspNetCore/bin/**/*",
+      "!src/EricksonLopez.RateLimiting.AspNetCore/obj/**/*"
+    ],
+    "ignore-methods": [
+      "*ConfigureAwait*",
+      "*Record*",
+      "*RecordRequest*",
+      "*AcquireSucceeded*",
+      "*AcquireRejected*",
+      "*AcquireFailed*",
+      "*Log*"
+    ]
+  }
+}
