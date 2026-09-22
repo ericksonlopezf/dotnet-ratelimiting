@@ -17,9 +17,9 @@
       "break": 95
     },
     "mutate": [
-      "src/EricksonLopez.RateLimiting/**/*.cs",
-      "!src/EricksonLopez.RateLimiting/bin/**/*",
-      "!src/EricksonLopez.RateLimiting/obj/**/*"
+      "**/*.cs",
+      "!bin/**/*",
+      "!obj/**/*"
     ],
     "ignore-methods": [
       "*ConfigureAwait*",

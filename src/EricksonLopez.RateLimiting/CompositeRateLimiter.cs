@@ -90,7 +90,7 @@ public sealed class CompositeRateLimiter : IRateLimiter
 
                 if (result.IsFailure)
                 {
-                    Rollback(acquiredLeases, acquiredCount);
+                    Rollback(acquiredLeases.AsSpan(0, acquiredCount));
 
                     var errDurationMs = System.Diagnostics.Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
                     RateLimitingMetrics.RecordRequest("composite", "failed", errDurationMs);
@@ -101,7 +101,7 @@ public sealed class CompositeRateLimiter : IRateLimiter
 
                 if (!lease.IsAcquired)
                 {
-                    Rollback(acquiredLeases, acquiredCount);
+                    Rollback(acquiredLeases.AsSpan(0, acquiredCount));
 
                     var rejDurationMs = System.Diagnostics.Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
                     RateLimitingMetrics.RecordRequest("composite", "rejected", rejDurationMs);
@@ -112,25 +112,22 @@ public sealed class CompositeRateLimiter : IRateLimiter
 
                 acquiredLeases[acquiredCount++] = lease;
 
-                if (lease.RemainingPermits < minRemaining)
+                minRemaining = Math.Min(minRemaining, lease.RemainingPermits);
+
+                if (lease.Limit.HasValue)
                 {
-                    minRemaining = lease.RemainingPermits;
+                    minLimit = minLimit.HasValue ? Math.Min(minLimit.Value, lease.Limit.Value) : lease.Limit.Value;
                 }
 
-                if (lease.Limit.HasValue && (!minLimit.HasValue || lease.Limit.Value < minLimit.Value))
+                if (lease.ResetTime.HasValue)
                 {
-                    minLimit = lease.Limit;
-                }
-
-                if (lease.ResetTime.HasValue && (!maxResetTime.HasValue || lease.ResetTime.Value > maxResetTime.Value))
-                {
-                    maxResetTime = lease.ResetTime;
+                    maxResetTime = !maxResetTime.HasValue || lease.ResetTime.Value > maxResetTime.Value ? lease.ResetTime : maxResetTime;
                 }
             }
         }
         catch
         {
-            Rollback(acquiredLeases, acquiredCount);
+            Rollback(acquiredLeases.AsSpan(0, acquiredCount));
             throw;
         }
 
@@ -172,11 +169,11 @@ public sealed class CompositeRateLimiter : IRateLimiter
         return Result<RateLimitLease>.Success(finalLease);
     }
 
-    private static void Rollback(RateLimitLease[] leases, int count)
+    private static void Rollback(ReadOnlySpan<RateLimitLease> leases)
     {
-        for (int j = 0; j < count; j++)
+        foreach (var lease in leases)
         {
-            leases[j].Dispose();
+            lease.Dispose();
         }
     }
 }

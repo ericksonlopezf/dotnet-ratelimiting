@@ -17,9 +17,9 @@
       "break": 95
     },
     "mutate": [
-      "src/EricksonLopez.RateLimiting.AspNetCore/**/*.cs",
-      "!src/EricksonLopez.RateLimiting.AspNetCore/bin/**/*",
-      "!src/EricksonLopez.RateLimiting.AspNetCore/obj/**/*"
+      "**/*.cs",
+      "!bin/**/*",
+      "!obj/**/*"
     ],
     "ignore-methods": [
       "*ConfigureAwait*",

@@ -58,10 +58,6 @@ public static class RateLimitingRedisServiceCollectionExtensions
         {
             services.Configure(configure);
         }
-        else
-        {
-            services.Configure<RedisRateLimiterOptions>(_ => { });
-        }
 
         services.TryAddSingleton(connectionMultiplexer);
         services.AddSingleton<IRateLimiter, RedisSlidingWindowRateLimiter>();
@@ -115,10 +111,6 @@ public static class RateLimitingRedisServiceCollectionExtensions
         if (configure is not null)
         {
             services.Configure(configure);
-        }
-        else
-        {
-            services.Configure<RedisTokenBucketRateLimiterOptions>(_ => { });
         }
 
         services.TryAddSingleton(connectionMultiplexer);

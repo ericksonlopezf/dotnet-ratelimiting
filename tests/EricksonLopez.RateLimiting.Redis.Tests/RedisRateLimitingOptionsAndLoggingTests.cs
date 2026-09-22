@@ -1,8 +1,10 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using StackExchange.Redis;
 using Xunit;
 
 namespace EricksonLopez.RateLimiting.Redis.Tests;
@@ -96,6 +98,72 @@ public sealed class RedisRateLimitingOptionsAndLoggingTests
         actReplenishZero.Should().Throw<ArgumentOutOfRangeException>()
             .WithMessage("*ReplenishmentPeriod must be greater than zero.*");
         actReplenishNeg.Should().Throw<ArgumentOutOfRangeException>();
+
+        // Database index boundaries
+        options.Database = 0;
+        options.Database.Should().Be(0);
+        options.Database = 15;
+        options.Database.Should().Be(15);
+
+        Action actDbNeg = () => options.Database = -1;
+        Action actDbOver15 = () => options.Database = 16;
+        actDbNeg.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Database index must be between 0 and 15.*");
+        actDbOver15.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Database index must be between 0 and 15.*");
+    }
+
+    [Fact]
+    public void RedisRateLimiterOptions_Validations()
+    {
+        var options = new RedisRateLimiterOptions();
+
+        options.MaxPermits = 1;
+        options.MaxPermits.Should().Be(1);
+
+        Action actMaxPermitsZero = () => options.MaxPermits = 0;
+        Action actMaxPermitsNeg = () => options.MaxPermits = -1;
+        actMaxPermitsZero.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*MaxPermits must be at least 1.*");
+        actMaxPermitsNeg.Should().Throw<ArgumentOutOfRangeException>();
+
+        options.Database = 0;
+        options.Database.Should().Be(0);
+        options.Database = 15;
+        options.Database.Should().Be(15);
+
+        Action actDbNeg = () => options.Database = -1;
+        Action actDbOver15 = () => options.Database = 16;
+        actDbNeg.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Database index must be between 0 and 15.*");
+        actDbOver15.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Database index must be between 0 and 15.*");
+    }
+
+    [Fact]
+    public async Task RedisLimiters_DisposeAsync_WhenOwned_DisposesConnection()
+    {
+        var connection = Substitute.For<IConnectionMultiplexer>();
+        var loggerSliding = Substitute.For<ILogger<RedisSlidingWindowRateLimiter>>();
+        var loggerToken = Substitute.For<ILogger<RedisTokenBucketRateLimiter>>();
+
+        var slidingLimiter = new RedisSlidingWindowRateLimiter(
+            connection,
+            new RedisRateLimiterOptions(),
+            loggerSliding,
+            ownsConnection: true);
+
+        await slidingLimiter.DisposeAsync();
+        await connection.Received(1).DisposeAsync();
+
+        var tokenLimiter = new RedisTokenBucketRateLimiter(
+            connection,
+            new RedisTokenBucketRateLimiterOptions(),
+            loggerToken,
+            ownsConnection: true);
+
+        await tokenLimiter.DisposeAsync();
+        await connection.Received(2).DisposeAsync();
     }
 
     [Fact]

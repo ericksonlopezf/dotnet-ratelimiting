@@ -58,12 +58,12 @@ internal sealed class SlidingWindowPartition
             }
 
             // Compute exact Retry-After by finding when enough permits roll out of the sliding window
-            var neededPermits = permits > _permitLimit ? permits : (permits - (_permitLimit - currentUsage));
-            var freed = 0;
             long earliestSufficientExpiryTicks = (_lastSegmentIndex + _segments.Length) * _segmentInterval.Ticks;
 
             if (permits <= _permitLimit)
             {
+                var neededPermits = permits - (_permitLimit - currentUsage);
+                var freed = 0;
                 for (var offset = 0; offset < _segments.Length; offset++)
                 {
                     var segIdx = currentSegmentIndex - _segments.Length + 1 + offset;
@@ -77,11 +77,7 @@ internal sealed class SlidingWindowPartition
                 }
             }
 
-            var retryAfterTicks = earliestSufficientExpiryTicks - now.UtcTicks;
-            if (retryAfterTicks <= 0)
-            {
-                retryAfterTicks = _segmentInterval.Ticks;
-            }
+            var retryAfterTicks = Math.Max(1, earliestSufficientExpiryTicks - now.UtcTicks);
 
             var retryAfter = TimeSpan.FromTicks(retryAfterTicks);
             var resetTime = new DateTimeOffset(earliestSufficientExpiryTicks, TimeSpan.Zero);

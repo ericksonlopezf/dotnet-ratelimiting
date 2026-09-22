@@ -17,9 +17,9 @@
       "break": 95
     },
     "mutate": [
-      "src/EricksonLopez.RateLimiting.Redis/**/*.cs",
-      "!src/EricksonLopez.RateLimiting.Redis/bin/**/*",
-      "!src/EricksonLopez.RateLimiting.Redis/obj/**/*"
+      "**/*.cs",
+      "!bin/**/*",
+      "!obj/**/*"
     ],
     "ignore-methods": [
       "*ConfigureAwait*",

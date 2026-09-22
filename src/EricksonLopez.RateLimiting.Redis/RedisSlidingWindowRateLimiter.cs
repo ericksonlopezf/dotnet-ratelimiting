@@ -197,13 +197,9 @@ public sealed class RedisSlidingWindowRateLimiter : IRateLimiter, IAsyncDisposab
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        if (_ownsConnection && _connection is IAsyncDisposable asyncDisposable)
+        if (_ownsConnection)
         {
-            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-        }
-        else if (_ownsConnection)
-        {
-            _connection.Dispose();
+            await _connection.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

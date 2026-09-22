@@ -39,12 +39,7 @@ internal sealed class FixedWindowPartition
                 return RateLimitLease.Successful(remaining, windowEnd, null, _permitLimit);
             }
 
-            var retryAfterTicks = nextWindowTicks - now.UtcTicks;
-            if (retryAfterTicks <= 0)
-            {
-                retryAfterTicks = 1;
-            }
-
+            var retryAfterTicks = Math.Max(1, nextWindowTicks - now.UtcTicks);
             var retryAfter = TimeSpan.FromTicks(retryAfterTicks);
             return RateLimitLease.Rejected(retryAfter, windowEnd, _permitLimit);
         }

@@ -41,7 +41,7 @@ public sealed class TokenBucketRateLimiter : IRateLimiter
         var startTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
         var now = _timeProvider.GetUtcNow();
 
-        if (_partitions.Count >= _options.MaxPartitions && !_partitions.ContainsKey(key))
+        if (_partitions.Count >= _options.MaxPartitions)
         {
             PruneIdlePartitions(now);
             if (_partitions.Count >= _options.MaxPartitions && !_partitions.ContainsKey(key))
