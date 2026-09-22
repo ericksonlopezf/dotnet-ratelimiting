@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>EricksonLopez.RateLimiting.Redis</AssemblyName>
+    <RootNamespace>EricksonLopez.RateLimiting.Redis</RootNamespace>
+    <PackageId>EricksonLopez.RateLimiting.Redis</PackageId>
+    <Description>Distributed Redis-backed rate limiters for EricksonLopez.RateLimiting. Implements Sliding Window (atomic Lua script over Redis ZSET) and Token Bucket (atomic Lua script over Redis Hash) distributed algorithms for consistent rate limiting behavior across multiple horizontally-scaled application instances. 100% Native AOT compatible.</Description>
+    <PackageTags>$(CommonPackageTags);redis;stackexchange-redis;distributed;lua;sliding-window;token-bucket;multi-tenant;fail-open</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.RateLimiting\EricksonLopez.RateLimiting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EricksonLopez.Result" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="StackExchange.Redis" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PublicKey is inherited from Directory.Build.props — do not embed it here to avoid CS1700 -->
+    <InternalsVisibleTo Include="EricksonLopez.RateLimiting.Redis.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>

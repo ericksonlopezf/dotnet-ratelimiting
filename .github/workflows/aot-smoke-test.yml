@@ -1,0 +1,63 @@
+# Copyright © Erickson Lopez. MIT License.
+name: Native AOT Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.*"
+      - ".github/workflows/aot-smoke-test.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.*"
+      - ".github/workflows/aot-smoke-test.yml"
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  aot-publish-and-run:
+    name: Native AOT (linux-x64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install Native Toolchain (Clang / Zlib)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang zlib1g-dev
+
+      - name: Restore Dependencies
+        run: dotnet restore EricksonLopez.RateLimiting.slnx
+
+      - name: Publish Native AOT Executable (linux-x64)
+        run: >
+          dotnet publish tests/EricksonLopez.RateLimiting.AotSmokeTest/EricksonLopez.RateLimiting.AotSmokeTest.csproj
+          --configuration Release
+          --runtime linux-x64
+          --no-restore
+          /p:PublishAot=true
+          --output ./aot-output
+
+      - name: Execute Native AOT Smoke Test Binary
+        run: |
+          chmod +x ./aot-output/EricksonLopez.RateLimiting.AotSmokeTest
+          ./aot-output/EricksonLopez.RateLimiting.AotSmokeTest

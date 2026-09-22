@@ -1,0 +1,26 @@
+# Global repository ownership
+* @ericksonlopezf
+
+# Build & CPM configuration
+/Directory.Build.props @ericksonlopezf
+/Directory.Packages.props @ericksonlopezf
+/EricksonLopez.RateLimiting.slnx @ericksonlopezf
+
+# Production source code
+/src/ @ericksonlopezf
+
+# Test suites
+/tests/ @ericksonlopezf
+
+# Benchmark suites
+/benchmarks/ @ericksonlopezf
+
+# Sample applications
+/samples/ @ericksonlopezf
+
+# CI/CD Workflows & Scripts
+/.github/workflows/ @ericksonlopezf
+/scripts/ @ericksonlopezf
+
+# Technical Documentation
+/docs/ @ericksonlopezf

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>EricksonLopez.RateLimiting</AssemblyName>
+    <RootNamespace>EricksonLopez.RateLimiting</RootNamespace>
+    <PackageId>EricksonLopez.RateLimiting</PackageId>
+    <Description>High-throughput rate limiting engine for .NET. Features sliding window, token bucket, fixed window algorithms with zero allocations and 100% Native AOT compatibility.</Description>
+    <PackageTags>$(CommonPackageTags);in-memory;sliding-window;token-bucket;fixed-window;concurrency;composite-limiter;named-policies;opentelemetry;metrics;zero-allocation</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EricksonLopez.Result" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.RateLimiting.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.RateLimiting.Benchmarks" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>
