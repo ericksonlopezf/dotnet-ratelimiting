@@ -68,10 +68,6 @@ public sealed class CompositeRateLimiter : IRateLimiter
         int permits = 1,
         CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        ArgumentNullException.ThrowIfNull(key);
-        ArgumentOutOfRangeException.ThrowIfLessThan(permits, 1);
-
         var startTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
 
         var acquiredLeases = new RateLimitLease[_limiters.Length];
@@ -84,7 +80,6 @@ public sealed class CompositeRateLimiter : IRateLimiter
         {
             for (int i = 0; i < _limiters.Length; i++)
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 var limiter = _limiters[i];
                 var result = await limiter.AcquireAsync(key, permits, cancellationToken).ConfigureAwait(false);
 

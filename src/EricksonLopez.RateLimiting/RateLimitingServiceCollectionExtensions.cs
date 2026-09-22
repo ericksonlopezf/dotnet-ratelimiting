@@ -20,8 +20,6 @@ public static class RateLimitingServiceCollectionExtensions
         this IServiceCollection services,
         Action<RateLimiterOptions>? configure = null)
     {
-        ArgumentNullException.ThrowIfNull(services);
-
         var options = new RateLimiterOptions();
         configure?.Invoke(options);
 
@@ -42,8 +40,6 @@ public static class RateLimitingServiceCollectionExtensions
         this IServiceCollection services,
         Action<RateLimiterOptions>? configure = null)
     {
-        ArgumentNullException.ThrowIfNull(services);
-
         var options = new RateLimiterOptions();
         configure?.Invoke(options);
 
@@ -64,8 +60,6 @@ public static class RateLimitingServiceCollectionExtensions
         this IServiceCollection services,
         Action<RateLimiterOptions>? configure = null)
     {
-        ArgumentNullException.ThrowIfNull(services);
-
         var options = new RateLimiterOptions();
         configure?.Invoke(options);
 
@@ -86,8 +80,6 @@ public static class RateLimitingServiceCollectionExtensions
         this IServiceCollection services,
         Action<ConcurrencyRateLimiterOptions>? configure = null)
     {
-        ArgumentNullException.ThrowIfNull(services);
-
         var options = new ConcurrencyRateLimiterOptions();
         configure?.Invoke(options);
 
@@ -108,9 +100,6 @@ public static class RateLimitingServiceCollectionExtensions
         this IServiceCollection services,
         params IRateLimiter[] limiters)
     {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(limiters);
-
         services.AddSingleton<IRateLimiter>(new CompositeRateLimiter(limiters));
 
         return services;

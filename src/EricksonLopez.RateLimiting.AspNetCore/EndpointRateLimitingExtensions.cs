@@ -19,13 +19,8 @@ public static class EndpointRateLimitingExtensions
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/></exception>
     /// <exception cref="ArgumentException"><paramref name="policyName"/> is <see langword="null"/>, empty, or consists only of white-space characters</exception>
     public static TBuilder RequireRateLimiting<TBuilder>(this TBuilder builder, string policyName)
-        where TBuilder : IEndpointConventionBuilder
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
-
-        return builder.WithMetadata(new EnableRateLimitingAttribute(policyName));
-    }
+        where TBuilder : IEndpointConventionBuilder =>
+        builder.WithMetadata(new EnableRateLimitingAttribute(policyName));
 
     /// <summary>
     /// Disables rate limiting for the endpoint.
@@ -35,12 +30,8 @@ public static class EndpointRateLimitingExtensions
     /// <returns>The endpoint convention builder instance to enable method chaining.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/></exception>
     public static TBuilder DisableRateLimiting<TBuilder>(this TBuilder builder)
-        where TBuilder : IEndpointConventionBuilder
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        return builder.WithMetadata(new DisableRateLimitingAttribute());
-    }
+        where TBuilder : IEndpointConventionBuilder =>
+        builder.WithMetadata(new DisableRateLimitingAttribute());
 
     /// <summary>
     /// Applies a named rate limiting policy to the endpoint.

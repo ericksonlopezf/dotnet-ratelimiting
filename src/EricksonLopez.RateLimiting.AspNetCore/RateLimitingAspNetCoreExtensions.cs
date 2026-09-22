@@ -46,7 +46,6 @@ public static class RateLimitingAspNetCoreExtensions
         Action<RateLimiterPolicyBuilder> configure,
         Action<RateLimitingMiddlewareOptions>? configureMiddleware = null)
     {
-        ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
 
         var builder = new RateLimiterPolicyBuilder();

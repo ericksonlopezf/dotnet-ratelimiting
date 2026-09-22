@@ -17,7 +17,7 @@ internal sealed class SlidingWindowPartition
         _segments = new int[Math.Max(1, segmentsPerWindow)];
         var intervalTicks = Math.Max(1, window.Ticks / _segments.Length);
         _segmentInterval = TimeSpan.FromTicks(intervalTicks);
-        _lastSegmentIndex = Math.Max(0, startTime.UtcTicks / _segmentInterval.Ticks);
+        _lastSegmentIndex = startTime.UtcTicks / _segmentInterval.Ticks;
     }
 
     public RateLimitLease TryAcquire(int permits, DateTimeOffset now)
@@ -29,16 +29,13 @@ internal sealed class SlidingWindowPartition
             var currentSegmentIndex = Math.Max(_lastSegmentIndex, rawSegmentIndex);
             var segmentsToAdvance = currentSegmentIndex - _lastSegmentIndex;
 
-            if (segmentsToAdvance > 0)
+            var clearCount = (int)Math.Min(Math.Max(0, segmentsToAdvance), _segments.Length);
+            for (var i = 1; i <= clearCount; i++)
             {
-                var clearCount = (int)Math.Min(segmentsToAdvance, _segments.Length);
-                for (var i = 1; i <= clearCount; i++)
-                {
-                    var indexToClear = (int)(((_lastSegmentIndex + i) % _segments.Length + _segments.Length) % _segments.Length);
-                    _segments[indexToClear] = 0;
-                }
-                _lastSegmentIndex = currentSegmentIndex;
+                var indexToClear = (int)(((_lastSegmentIndex + i) % _segments.Length + _segments.Length) % _segments.Length);
+                _segments[indexToClear] = 0;
             }
+            _lastSegmentIndex = currentSegmentIndex;
 
             var currentUsage = 0;
             for (var i = 0; i < _segments.Length; i++)

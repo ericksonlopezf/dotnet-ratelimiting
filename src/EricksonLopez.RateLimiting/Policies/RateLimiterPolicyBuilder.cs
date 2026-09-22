@@ -24,7 +24,6 @@ public sealed class RateLimiterPolicyBuilder
         Action<RateLimiterOptions> configure,
         TimeProvider? timeProvider = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         ArgumentNullException.ThrowIfNull(configure);
 
         var options = new RateLimiterOptions();
@@ -49,7 +48,6 @@ public sealed class RateLimiterPolicyBuilder
         Action<RateLimiterOptions> configure,
         TimeProvider? timeProvider = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         ArgumentNullException.ThrowIfNull(configure);
 
         var options = new RateLimiterOptions();
@@ -74,7 +72,6 @@ public sealed class RateLimiterPolicyBuilder
         Action<RateLimiterOptions> configure,
         TimeProvider? timeProvider = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         ArgumentNullException.ThrowIfNull(configure);
 
         var options = new RateLimiterOptions();
@@ -97,7 +94,6 @@ public sealed class RateLimiterPolicyBuilder
         string policyName,
         Action<ConcurrencyRateLimiterOptions> configure)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         ArgumentNullException.ThrowIfNull(configure);
 
         var options = new ConcurrencyRateLimiterOptions();
@@ -120,9 +116,6 @@ public sealed class RateLimiterPolicyBuilder
         string policyName,
         params IRateLimiter[] limiters)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
-        ArgumentNullException.ThrowIfNull(limiters);
-
         var limiter = new CompositeRateLimiter(limiters);
         _registry.Register(policyName, limiter);
         return this;
@@ -138,9 +131,6 @@ public sealed class RateLimiterPolicyBuilder
     /// <exception cref="ArgumentNullException"><paramref name="limiter"/> is <see langword="null"/></exception>
     public RateLimiterPolicyBuilder AddPolicy(string policyName, IRateLimiter limiter)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
-        ArgumentNullException.ThrowIfNull(limiter);
-
         _registry.Register(policyName, limiter);
         return this;
     }
@@ -167,7 +157,6 @@ public sealed class RateLimiterPolicyBuilder
     /// <exception cref="InvalidOperationException">The specified policy name is not registered</exception>
     public RateLimiterPolicyBuilder SetDefaultPolicy(string policyName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(policyName);
         var limiter = _registry.GetPolicy(policyName)
             ?? throw new InvalidOperationException($"Policy '{policyName}' is not registered.");
 

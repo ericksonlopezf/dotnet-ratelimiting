@@ -701,6 +701,32 @@ public sealed class MutationKillAdversarialTests
         res.Value.DisposeAction.Should().BeNull();
     }
 
+    [Fact]
+    public async Task CompositeRateLimiter_IncreasingLimits_KillsMutants()
+    {
+        var s5 = new FakeRateLimiter(RateLimitLease.Successful(5, null, null, 5));
+        var s10 = new FakeRateLimiter(RateLimitLease.Successful(15, null, null, 10));
+
+        var compIncreasing = new CompositeRateLimiter(s5, s10);
+        var res = await compIncreasing.AcquireAsync("key", 1);
+        res.Value.Limit.Should().Be(5);
+    }
+
+    [Fact]
+    public async Task CompositeRateLimiter_MultipleDispose_InvokesChildDisposeOnlyOnce()
+    {
+        var disposeCalls = 0;
+        var lease = RateLimitLease.Successful(10, (DateTimeOffset?)null, () => disposeCalls++, 10);
+        var lim = new FakeRateLimiter(lease);
+        var comp = new CompositeRateLimiter(lim);
+
+        var res = await comp.AcquireAsync("key", 1);
+        res.Value.Dispose();
+        res.Value.Dispose();
+
+        disposeCalls.Should().Be(1);
+    }
+
     private sealed class FakeRateLimiter : IRateLimiter
     {
         private readonly RateLimitLease _lease;
