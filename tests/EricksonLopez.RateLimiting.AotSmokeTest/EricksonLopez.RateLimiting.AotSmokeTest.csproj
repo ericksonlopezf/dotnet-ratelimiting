@@ -1,0 +1,25 @@
+<!-- Copyright © Erickson Lopez. MIT License. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <PublishAot>true</PublishAot>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <Description>Native AOT smoke test executable validating ahead-of-time compilation and zero-reflection execution for EricksonLopez.RateLimiting.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.RateLimiting\EricksonLopez.RateLimiting.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.RateLimiting.AspNetCore\EricksonLopez.RateLimiting.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.RateLimiting.Redis\EricksonLopez.RateLimiting.Redis.csproj" />
+  </ItemGroup>
+
+</Project>
