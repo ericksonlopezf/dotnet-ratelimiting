@@ -30,7 +30,7 @@ public sealed class RedisTokenBucketRateLimiter : IRateLimiter, IAsyncDisposable
     // ARGV[4] = replenishment period duration (microseconds)
     // ARGV[5] = requested permits
     // Returns: { allowed (0/1), remaining_tokens, retry_after_us, reset_time_us }
-    private const string TokenBucketLua = """
+    private const string _tokenBucketLua = """
         local key = KEYS[1]
         local now = tonumber(ARGV[1])
         local max_tokens = tonumber(ARGV[2])
@@ -151,7 +151,7 @@ public sealed class RedisTokenBucketRateLimiter : IRateLimiter, IAsyncDisposable
             var periodUs = (long)_options.ReplenishmentPeriod.TotalMilliseconds * 1000L;
 
             var result = await db.ScriptEvaluateAsync(
-                TokenBucketLua,
+                _tokenBucketLua,
                 keys: [(RedisKey)fullKey],
                 values:
                 [

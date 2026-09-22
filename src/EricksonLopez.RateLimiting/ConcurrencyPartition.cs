@@ -9,7 +9,7 @@ namespace EricksonLopez.RateLimiting;
 /// </summary>
 internal sealed class ConcurrencyPartition
 {
-    private const int RetiredState = -1;
+    private const int _retiredState = -1;
     private int _activePermits;
     private readonly int _limit;
 
@@ -20,11 +20,11 @@ internal sealed class ConcurrencyPartition
 
     public int Limit => _limit;
 
-    public bool IsRetired => Volatile.Read(ref _activePermits) == RetiredState;
+    public bool IsRetired => Volatile.Read(ref _activePermits) == _retiredState;
 
     public bool TryRetire()
     {
-        return Interlocked.CompareExchange(ref _activePermits, RetiredState, 0) == 0;
+        return Interlocked.CompareExchange(ref _activePermits, _retiredState, 0) == 0;
     }
 
     public bool TryAcquire(int permits, out int remainingPermits)
@@ -37,7 +37,7 @@ internal sealed class ConcurrencyPartition
         while (true)
         {
             var current = Volatile.Read(ref _activePermits);
-            if (current == RetiredState)
+            if (current == _retiredState)
             {
                 remainingPermits = 0;
                 return ConcurrencyAcquireResult.Retired;
@@ -62,7 +62,7 @@ internal sealed class ConcurrencyPartition
         while (true)
         {
             var current = Volatile.Read(ref _activePermits);
-            if (current == RetiredState)
+            if (current == _retiredState)
             {
                 break;
             }

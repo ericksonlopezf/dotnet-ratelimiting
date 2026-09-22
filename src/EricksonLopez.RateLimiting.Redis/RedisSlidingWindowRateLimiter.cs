@@ -39,7 +39,7 @@ public sealed class RedisSlidingWindowRateLimiter : IRateLimiter, IAsyncDisposab
     // ARGV[5] = number of permits to acquire
     // ARGV[6] = unique request identifier to prevent score/member collisions under high concurrency
     // Returns: { allowed (0/1), remaining_permits, retry_after_us, reset_time_us }
-    private const string SlidingWindowLua = """
+    private const string _slidingWindowLua = """
         local key = KEYS[1]
         local window_start = tonumber(ARGV[1])
         local now = tonumber(ARGV[2])
@@ -146,7 +146,7 @@ public sealed class RedisSlidingWindowRateLimiter : IRateLimiter, IAsyncDisposab
             var requestId = Guid.NewGuid().ToString("N");
 
             var result = await db.ScriptEvaluateAsync(
-                SlidingWindowLua,
+                _slidingWindowLua,
                 keys: [(RedisKey)fullKey],
                 values:
                 [
