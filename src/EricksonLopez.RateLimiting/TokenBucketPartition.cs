@@ -41,7 +41,7 @@ internal sealed class TokenBucketPartition
 
             var missingTokens = permits > _capacity ? _capacity : (permits - _currentTokens);
             var rawSecondsToWait = missingTokens / _refillRatePerSecond;
-            var secondsToWait = double.IsFinite(rawSecondsToWait) ? Math.Min(86400.0, rawSecondsToWait) : 86400.0;
+            var secondsToWait = Math.Min(86400.0, rawSecondsToWait);
 
             var retryAfter = TimeSpan.FromSeconds(Math.Max(0.001, secondsToWait));
             return RateLimitLease.Rejected(retryAfter, now.Add(retryAfter), (int)_capacity);

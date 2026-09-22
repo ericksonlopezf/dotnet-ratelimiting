@@ -535,6 +535,172 @@ public sealed class MutationKillAdversarialTests
         resDecreasing.Value.ResetTime.Should().Be(t2);
     }
 
+    [Fact]
+    public async Task RateLimiter_GuardClauses_ThrowExpectedExceptions()
+    {
+        var options = new RateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromSeconds(10) };
+        var concOptions = new ConcurrencyRateLimiterOptions { PermitLimit = 5 };
+
+        var limiters = new IRateLimiter[]
+        {
+            new ConcurrencyRateLimiter(concOptions),
+            new FixedWindowRateLimiter(options, _timeProvider),
+            new SlidingWindowRateLimiter(options, _timeProvider),
+            new TokenBucketRateLimiter(options, _timeProvider),
+            new CompositeRateLimiter(new ConcurrencyRateLimiter(concOptions))
+        };
+
+        foreach (var limiter in limiters)
+        {
+            // Null key
+            var actNullKey = () => limiter.AcquireAsync(null!, 1);
+            await actNullKey.Should().ThrowAsync<ArgumentNullException>();
+
+            // Less than 1 permits
+            var actZeroPermits = () => limiter.AcquireAsync("key", 0);
+            await actZeroPermits.Should().ThrowAsync<ArgumentOutOfRangeException>();
+
+            var actNegPermits = () => limiter.AcquireAsync("key", -1);
+            await actNegPermits.Should().ThrowAsync<ArgumentOutOfRangeException>();
+
+            // Canceled token
+            using var cts = new System.Threading.CancellationTokenSource();
+            cts.Cancel();
+            var actCanceled = () => limiter.AcquireAsync("key", 1, cts.Token);
+            await actCanceled.Should().ThrowAsync<OperationCanceledException>();
+        }
+
+        // CompositeRateLimiter constructor with null
+        Action actNullComp = () => _ = new CompositeRateLimiter((IRateLimiter[])null!);
+        actNullComp.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void RateLimiterPolicyBuilder_GuardClauses_ThrowExpectedExceptions()
+    {
+        var builder = new EricksonLopez.RateLimiting.Policies.RateLimiterPolicyBuilder();
+        var fakeLimiter = new FakeRateLimiter(default);
+
+        Action actNull1 = () => builder.AddPolicy(null!, fakeLimiter);
+        actNull1.Should().Throw<ArgumentException>();
+        Action actEmpty1 = () => builder.AddPolicy("  ", fakeLimiter);
+        actEmpty1.Should().Throw<ArgumentException>();
+        Action actNullConfig1 = () => builder.AddPolicy("test", (IRateLimiter)null!);
+        actNullConfig1.Should().Throw<ArgumentNullException>();
+
+        Action actNull2 = () => builder.AddConcurrency(null!, _ => { });
+        actNull2.Should().Throw<ArgumentException>();
+        Action actEmpty2 = () => builder.AddConcurrency("", _ => { });
+        actEmpty2.Should().Throw<ArgumentException>();
+        Action actNullConfig2 = () => builder.AddConcurrency("test", null!);
+        actNullConfig2.Should().Throw<ArgumentNullException>();
+
+        Action actNull3 = () => builder.AddFixedWindow(null!, _ => { });
+        actNull3.Should().Throw<ArgumentException>();
+        Action actEmpty3 = () => builder.AddFixedWindow("", _ => { });
+        actEmpty3.Should().Throw<ArgumentException>();
+        Action actNullConfig3 = () => builder.AddFixedWindow("test", null!);
+        actNullConfig3.Should().Throw<ArgumentNullException>();
+
+        Action actNull4 = () => builder.AddSlidingWindow(null!, _ => { });
+        actNull4.Should().Throw<ArgumentException>();
+        Action actEmpty4 = () => builder.AddSlidingWindow("", _ => { });
+        actEmpty4.Should().Throw<ArgumentException>();
+        Action actNullConfig4 = () => builder.AddSlidingWindow("test", null!);
+        actNullConfig4.Should().Throw<ArgumentNullException>();
+
+        Action actNull5 = () => builder.AddTokenBucket(null!, _ => { });
+        actNull5.Should().Throw<ArgumentException>();
+        Action actEmpty5 = () => builder.AddTokenBucket("", _ => { });
+        actEmpty5.Should().Throw<ArgumentException>();
+        Action actNullConfig5 = () => builder.AddTokenBucket("test", null!);
+        actNullConfig5.Should().Throw<ArgumentNullException>();
+
+        Action actNull6 = () => builder.AddComposite(null!, fakeLimiter);
+        actNull6.Should().Throw<ArgumentException>();
+        Action actEmpty6 = () => builder.AddComposite("   ", fakeLimiter);
+        actEmpty6.Should().Throw<ArgumentException>();
+        Action actNullConfig6 = () => builder.AddComposite("test", (IRateLimiter[])null!);
+        actNullConfig6.Should().Throw<ArgumentNullException>();
+
+        Action actNullDefault = () => builder.SetDefaultPolicy((string)null!);
+        actNullDefault.Should().Throw<ArgumentException>();
+        Action actNullDefaultLimiter = () => builder.SetDefaultPolicy((IRateLimiter)null!);
+        actNullDefaultLimiter.Should().Throw<ArgumentNullException>();
+        Action actEmptyDefault = () => builder.SetDefaultPolicy("   ");
+        actEmptyDefault.Should().Throw<ArgumentException>();
+        Action actUnregistered = () => builder.SetDefaultPolicy("nonexistent");
+        actUnregistered.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void RateLimitingServiceCollectionExtensions_GuardClauses_ThrowExpectedExceptions()
+    {
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+
+        Action act1 = () => RateLimitingServiceCollectionExtensions.AddConcurrencyRateLimiter(null!);
+        act1.Should().Throw<ArgumentNullException>();
+
+        Action act2 = () => RateLimitingServiceCollectionExtensions.AddFixedWindowRateLimiter(null!);
+        act2.Should().Throw<ArgumentNullException>();
+
+        Action act3 = () => RateLimitingServiceCollectionExtensions.AddSlidingWindowRateLimiter(null!);
+        act3.Should().Throw<ArgumentNullException>();
+
+        Action act4 = () => RateLimitingServiceCollectionExtensions.AddTokenBucketRateLimiter(null!);
+        act4.Should().Throw<ArgumentNullException>();
+
+        Action act5 = () => RateLimitingServiceCollectionExtensions.AddCompositeRateLimiter(null!, new FakeRateLimiter(default));
+        act5.Should().Throw<ArgumentNullException>();
+
+        Action act6 = () => RateLimitingServiceCollectionExtensions.AddCompositeRateLimiter(services, (IRateLimiter[])null!);
+        act6.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Options_ValidationMessages_KillsStringMutants()
+    {
+        var opt = new RateLimiterOptions();
+        Action actLimit = () => opt.PermitLimit = 0;
+        actLimit.Should().Throw<ArgumentOutOfRangeException>();
+
+        Action actSegments = () => opt.SegmentsPerWindow = 0;
+        actSegments.Should().Throw<ArgumentOutOfRangeException>();
+
+        Action actMaxPartitions = () => opt.MaxPartitions = 0;
+        actMaxPartitions.Should().Throw<ArgumentOutOfRangeException>();
+
+        Action actWindowZero = () => opt.Window = TimeSpan.Zero;
+        actWindowZero.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*Window must be greater than zero.*");
+
+        Action actWindowNeg = () => opt.Window = TimeSpan.FromSeconds(-5);
+        actWindowNeg.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*Window must be greater than zero.*");
+
+        var concOpt = new ConcurrencyRateLimiterOptions();
+        Action actConcLimit = () => concOpt.PermitLimit = 0;
+        actConcLimit.Should().Throw<ArgumentOutOfRangeException>();
+
+        Action actConcMaxPartitions = () => concOpt.MaxPartitions = 0;
+        actConcMaxPartitions.Should().Throw<ArgumentOutOfRangeException>();
+
+        RateLimitingMetrics.RequestsTotal.Unit.Should().Be("{request}");
+        RateLimitingMetrics.RequestsTotal.Description.Should().Be("Total number of rate limit permit evaluation attempts.");
+        RateLimitingMetrics.LeaseDuration.Unit.Should().Be("ms");
+        RateLimitingMetrics.LeaseDuration.Description.Should().Be("Duration of rate limit permit acquisition attempt.");
+    }
+
+    [Fact]
+    public async Task CompositeRateLimiter_HasDisposeAction_WhenNoChildrenHaveDispose_ReturnsNullDisposeAction()
+    {
+        var lim1 = new FakeRateLimiter(RateLimitLease.Successful(10, (DateTimeOffset?)null, (Action?)null));
+        var lim2 = new FakeRateLimiter(RateLimitLease.Successful(10, (DateTimeOffset?)null, (Action?)null));
+        var comp = new CompositeRateLimiter(lim1, lim2);
+
+        var res = await comp.AcquireAsync("key", 1);
+        res.Value.IsAcquired.Should().BeTrue();
+        res.Value.DisposeAction.Should().BeNull();
+    }
+
     private sealed class FakeRateLimiter : IRateLimiter
     {
         private readonly RateLimitLease _lease;

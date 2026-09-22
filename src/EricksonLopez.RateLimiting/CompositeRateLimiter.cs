@@ -135,33 +135,27 @@ public sealed class CompositeRateLimiter : IRateLimiter
         RateLimitingMetrics.RecordRequest("composite", "acquired", durationMs);
 
         Action? combinedDispose = null;
-        bool hasDisposeAction = false;
         for (int i = 0; i < acquiredCount; i++)
         {
             if (acquiredLeases[i].DisposeAction != null)
             {
-                hasDisposeAction = true;
+                var disposedFlag = 0;
+                combinedDispose = () =>
+                {
+                    if (Interlocked.Exchange(ref disposedFlag, 1) == 0)
+                    {
+                        for (int j = 0; j < acquiredCount; j++)
+                        {
+                            acquiredLeases[j].Dispose();
+                        }
+                    }
+                };
                 break;
             }
         }
 
-        if (hasDisposeAction)
-        {
-            var disposedFlag = 0;
-            combinedDispose = () =>
-            {
-                if (Interlocked.Exchange(ref disposedFlag, 1) == 0)
-                {
-                    for (int i = 0; i < acquiredCount; i++)
-                    {
-                        acquiredLeases[i].Dispose();
-                    }
-                }
-            };
-        }
-
         var finalLease = RateLimitLease.Successful(
-            minRemaining == int.MaxValue ? 0 : minRemaining,
+            minRemaining,
             maxResetTime,
             combinedDispose,
             minLimit);

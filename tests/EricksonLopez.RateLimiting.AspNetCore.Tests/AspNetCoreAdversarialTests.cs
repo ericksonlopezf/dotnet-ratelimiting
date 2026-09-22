@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using EricksonLopez.RateLimiting.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
@@ -107,5 +108,51 @@ public sealed class AspNetCoreAdversarialTests
         // LimitHeader cannot be "1" when Remaining is "99"! Remaining would be greater than limit!
         int.Parse(limitHeader, System.Globalization.CultureInfo.InvariantCulture).Should().BeGreaterThanOrEqualTo(99,
             "X-RateLimit-Limit header must represent the rate limiting quota, not the single-request permit cost!");
+    }
+
+    [Fact]
+    public void EndpointRateLimitingExtensions_GuardClauses_ThrowExpectedExceptions()
+    {
+        var dummyBuilder = Substitute.For<Microsoft.AspNetCore.Builder.IEndpointConventionBuilder>();
+
+        Action actNullBuilder = () => EndpointRateLimitingExtensions.RequireRateLimiting<Microsoft.AspNetCore.Builder.IEndpointConventionBuilder>(null!, "policy");
+        actNullBuilder.Should().Throw<ArgumentNullException>();
+
+        Action actNullPolicy = () => dummyBuilder.RequireRateLimiting(null!);
+        actNullPolicy.Should().Throw<ArgumentException>();
+
+        Action actWhitespacePolicy = () => dummyBuilder.RequireRateLimiting("   ");
+        actWhitespacePolicy.Should().Throw<ArgumentException>();
+
+        Action actNullDisable = () => EndpointRateLimitingExtensions.DisableRateLimiting<Microsoft.AspNetCore.Builder.IEndpointConventionBuilder>(null!);
+        actNullDisable.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void RateLimitingAspNetCoreExtensions_GuardClauses_AndRegistrations()
+    {
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+
+        Action actNullServices = () => RateLimitingAspNetCoreExtensions.AddRateLimiting(null!, _ => { });
+        actNullServices.Should().Throw<ArgumentNullException>();
+
+        Action actNullConfigure = () => services.AddRateLimiting(null!);
+        actNullConfigure.Should().Throw<ArgumentNullException>();
+
+        services.AddRateLimiting(b => b.AddConcurrency("test", opt => opt.PermitLimit = 5));
+        var sp = services.BuildServiceProvider();
+
+        sp.GetService(typeof(EricksonLopez.RateLimiting.Policies.IRateLimiterPolicyRegistry)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void RateLimitingMiddlewareOptions_PermitCost_ValidationMessage()
+    {
+        var options = new RateLimitingMiddlewareOptions();
+        options.PermitCost = 1;
+        options.PermitCost.Should().Be(1);
+
+        Action actZero = () => options.PermitCost = 0;
+        actZero.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*PermitCost must be at least 1.*");
     }
 }

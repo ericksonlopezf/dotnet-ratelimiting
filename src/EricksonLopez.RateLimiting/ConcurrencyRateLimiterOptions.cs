@@ -20,10 +20,7 @@ public sealed class ConcurrencyRateLimiterOptions
         get => _permitLimit;
         set
         {
-            if (value < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), "PermitLimit must be at least 1.");
-            }
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
             _permitLimit = value;
         }
     }

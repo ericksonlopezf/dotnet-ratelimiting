@@ -53,7 +53,6 @@ public static class RateLimitingAspNetCoreExtensions
         configure(builder);
         var registry = builder.Build();
 
-        services.AddSingleton(registry);
         services.AddSingleton<IRateLimiterPolicyRegistry>(registry);
 
         if (registry.DefaultLimiter != null)
