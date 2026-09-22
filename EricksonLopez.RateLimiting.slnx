@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EricksonLopez.RateLimiting/EricksonLopez.RateLimiting.csproj" />
+    <Project Path="src/EricksonLopez.RateLimiting.AspNetCore/EricksonLopez.RateLimiting.AspNetCore.csproj" />
+    <Project Path="src/EricksonLopez.RateLimiting.Redis/EricksonLopez.RateLimiting.Redis.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EricksonLopez.RateLimiting.Tests/EricksonLopez.RateLimiting.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.RateLimiting.AspNetCore.Tests/EricksonLopez.RateLimiting.AspNetCore.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.RateLimiting.Redis.Tests/EricksonLopez.RateLimiting.Redis.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.RateLimiting.AotSmokeTest/EricksonLopez.RateLimiting.AotSmokeTest.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/SlidingWindow.Sample/SlidingWindow.Sample.csproj" />
+    <Project Path="samples/Redis.MultiTenant.Sample/Redis.MultiTenant.Sample.csproj" />
+    <Project Path="samples/FailOpen.Sample/FailOpen.Sample.csproj" />
+    <Project Path="samples/NamedPolicies.Sample/NamedPolicies.Sample.csproj" />
+    <Project Path="samples/Showcase/EricksonLopez.RateLimiting.Showcase.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/EricksonLopez.RateLimiting.Benchmarks/EricksonLopez.RateLimiting.Benchmarks.csproj" />
+  </Folder>
+</Solution>

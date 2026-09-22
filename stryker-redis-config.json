@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-net/master/src/Stryker.Core/Stryker.Core/stryker-config.schema.json",
+  "stryker-config": {
+    "project": "EricksonLopez.RateLimiting.Redis.csproj",
+    "test-projects": [
+      "tests/EricksonLopez.RateLimiting.Redis.Tests/EricksonLopez.RateLimiting.Redis.Tests.csproj"
+    ],
+    "reporters": [
+      "ClearText",
+      "Html",
+      "Json"
+    ],
+    "concurrency": 2,
+    "thresholds": {
+      "high": 100,
+      "low": 98,
+      "break": 95
+    },
+    "mutate": [
+      "**/*.cs",
+      "!bin/**/*",
+      "!obj/**/*"
+    ],
+    "ignore-methods": [
+      "*ConfigureAwait*",
+      "*Record*",
+      "*RecordRequest*",
+      "*AcquireSucceeded*",
+      "*AcquireRejected*",
+      "*AcquireFailed*",
+      "*Log*"
+    ]
+  }
+}
