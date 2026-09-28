@@ -5,7 +5,7 @@ High-throughput, distributed, zero-allocation rate limiting engine and ASP.NET C
 [![CI](https://img.shields.io/github/actions/workflow/status/ericksonlopezf/dotnet-ratelimiting/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/ericksonlopezf/dotnet-ratelimiting/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/ericksonlopezf/dotnet-ratelimiting?style=for-the-badge&logo=codecov&logoColor=white)](https://codecov.io/gh/ericksonlopezf/dotnet-ratelimiting)
 [![Quality Gate](https://img.shields.io/sonar/quality_gate/ericksonlopezf_dotnet-ratelimiting?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/summary/new_code?id=ericksonlopezf_dotnet-ratelimiting)
-[![Mutation Score](https://img.shields.io/badge/Mutation_Score-100%25-brightgreen?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-ratelimiting/blob/main/docs/testing-roadmap.md)
+[![Mutation Score](https://img.shields.io/badge/Mutation_Score-97%25-green?style=for-the-badge&logo=stryker&logoColor=white)](https://github.com/ericksonlopezf/dotnet-ratelimiting/blob/main/docs/testing-roadmap.md)
 [![NuGet](https://img.shields.io/nuget/v/EricksonLopez.RateLimiting?style=for-the-badge&logo=nuget&logoColor=white&color=512BD4)](https://www.nuget.org/packages/EricksonLopez.RateLimiting)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/EricksonLopez.RateLimiting?style=for-the-badge&logo=nuget&logoColor=white&color=004880)](https://www.nuget.org/packages/EricksonLopez.RateLimiting)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/ericksonlopezf/dotnet-ratelimiting/blob/main/LICENSE)
